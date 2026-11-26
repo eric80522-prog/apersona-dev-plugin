@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "apersona-dev",
+  "owner": {
+    "name": "eric80522-prog"
+  },
+  "plugins": [
+    {
+      "name": "apersona-dev",
+      "source": "./plugin",
+      "description": "Apersona 輔助開發：依授權收錄、代答、規矩提案與打字統計。"
+    }
+  ]
+}

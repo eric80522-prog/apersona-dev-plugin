@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "apersona-dev",
+  "version": "0.1.0",
+  "description": "Apersona 輔助開發：依授權收錄、代答、規矩提案與打字統計。",
+  "author": {
+    "name": "eric80522-prog"
+  },
+  "userConfig": {
+    "site": {
+      "type": "string",
+      "title": "伺服器網址（選填）",
+      "description": "預設 https://www.apersonaai.com。",
+      "required": false
+    }
+  }
+}
