@@ -267,6 +267,23 @@ def turn_off_locally(client: str) -> None:
     write_consent(client, False, off_by="site")
 
 
+def sync_capture(client: str, site: str, key: str, remaining: float) -> None:
+    """Refresh an existing local consent record from the device's website state."""
+    try:
+        recorded = read_json(consent_path(client))
+        if not isinstance(recorded, dict) or (recorded.get("on") is not True and recorded.get("offBy") != "site"):
+            return
+        request = urllib.request.Request(
+            site.rstrip("/") + "/api/dev/capture-consent?detail=1",
+            headers={"Authorization": "Bearer " + key},
+        )
+        body = fetch_json(request, min(CONSENT_REPORT_S, remaining))
+    except (MissError, OSError):
+        return
+    if isinstance(body, dict):
+        follow_site(client, body.get("on"), body.get("offBy"))
+
+
 def follow_site(client: str, on: object, off_by: object = None) -> None:
     """The opening said whether the site takes this device's 收錄 (`capture`) and who turned it off (`captureOffBy`):
     one he turned off on the website and opened there again (重新開啟收錄) opens here too; one he took back there
@@ -1185,7 +1202,11 @@ def codex_main(kind: str, consent_answer: str | None, by_agent: bool = False, wo
         else:
             site, key = login_bearer(codex_config(data), BUDGET_S - (now_ms() - started_ms) / 1000)
             deadline = time.monotonic() + max(0, BUDGET_S - (now_ms() - started_ms) / 1000)
-            result, error = codex_stop(data, site, key, fields, deadline)
+            if kind == "authorization":
+                sync_capture("codex", site, key, deadline - time.monotonic())
+                result, error = "ok", ""
+            else:
+                result, error = codex_stop(data, site, key, fields, deadline)
     except MissError as problem:
         result, error = "miss", str(problem)
     except OSError:
@@ -1257,8 +1278,6 @@ def main(argv: list[str] | None = None) -> int:
     if args.switch is not None:
         return switch_command(args.client, args.switch == "on", args.project_directory)
     if args.client == "codex":
-        if args.kind == "authorization":
-            return 0
         return codex_main(args.kind, args.consent, args.by_agent, args.owner_words)
     if args.kind == "capture":
         parser.error("Claude Code 的對話會在 Stop 收錄")
@@ -1279,6 +1298,7 @@ def main(argv: list[str] | None = None) -> int:
             os.environ.get("CLAUDE_PLUGIN_OPTION_SITE", ""), BUDGET_S - (now_ms() - started_ms) / 1000
         )
         if args.kind == "authorization":
+            sync_capture("claude", site, key, BUDGET_S - (now_ms() - started_ms) / 1000)
             data = data_dir()
             if data is None:
                 return 0

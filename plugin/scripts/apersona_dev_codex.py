@@ -32,6 +32,7 @@ HOOK_NAME = "apersona_dev_hook.py"
 HOOK_SIBLINGS = ("apersona_mask.py", "apersona_safe.py", "apersona_login.py", "apersona_projects.py")
 # (Codex event, hook kind, timeout in seconds). Capture hooks never return context.
 EVENTS = (
+    ("SessionStart", "authorization", 5),
     ("UserPromptSubmit", "capture", 5),
     ("Stop", "stop", 10),
 )
