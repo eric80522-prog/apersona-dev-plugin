@@ -10,5 +10,6 @@
       "source": "./plugin",
       "description": "Apersona 輔助開發：依授權收錄、代答、規矩提案與打字統計。"
     }
-  ]
+  ],
+  "description": "Apersona 輔助開發：依授權收錄、代答、規矩提案與打字統計。"
 }
