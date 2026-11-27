@@ -18,12 +18,12 @@ def test_stop_copies_only_the_masked_terminal_report_from_the_assistants_words(t
     transcript = tmp_path / "chat.jsonl"
     transcript.write_text("", encoding="utf8")
     fields = {"session_id": "test", "transcript_path": str(transcript)}
-    for said in ("〈下一步〉是舊範例。\n已完成。", f"已完成。\n〈下一步〉整理測試\n\n〈請決定〉交付 {key} 的版本。"):
+    for said in ("〈下一步〉是舊範例。\n已完成。", f"已完成。\n〈請選〉先整理測試還是先發布？\n〈下一步〉整理測試\n\n〈請決定〉交付 {key} 的版本。"):
         assert hook.stand_in("http://localhost", "test", dict(fields, last_assistant_message=said), 1) == ""
     assert "stopReportV1" not in requests[0]
     assert paths == ["http://localhost/api/dev/stand-in", "http://localhost/api/dev/stand-in/report"]
     shown = requests[1]["stopReportV1"]
-    assert shown.startswith("〈下一步〉整理測試\n\n〈請決定〉") and requests[1]["said"].endswith(shown)
+    assert shown.startswith("〈請選〉先整理測試還是先發布？\n〈下一步〉整理測試\n\n〈請決定〉") and requests[1]["said"].endswith(shown)
     assert key not in json.dumps(requests, ensure_ascii=False)
     monkeypatch.setattr(hook, "fetch_json", lambda *_: {"verdict": "continue", "text": "〈人格代答〉繼續"})
     assert hook.stand_in("http://localhost", "test", dict(fields, last_assistant_message="〈下一步〉發布"), 1) == ""

@@ -564,7 +564,7 @@ def stand_in(site: str, key: str, fields: dict[str, object], left_s: float) -> s
         "next": redact_secrets(item),
         "conversation": session,
     }
-    report = re.search(r"(?m)^〈(?:下一步|請決定)〉[^\n]*(?:\n\s*〈(?:下一步|請決定)〉[^\n]*)*\Z", visible)
+    report = re.search(r"(?m)^〈(?:下一步|請決定|請選)〉[^\n]*(?:\n\s*〈(?:下一步|請決定|請選)〉[^\n]*)*\Z", visible)
     if report:
         ask["stopReportV1"] = report[0]
     if since:  # the first thing he typed since the last stop: the site marks its last answer, taken back or not
